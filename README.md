@@ -45,6 +45,14 @@
 
 - Maven坐标
 
+```
+<dependency>
+  <groupId>com.joseph</groupId>
+  <artifactId>sharp-knife.blade</artifactId>
+  <version>0.1-SNAPSHOT</version>
+</dependency>
+```
+
 - sharp-knife中的类
 
   1. `ScheduleRequest`类是面向用户的，封装用户请求的对象
@@ -53,11 +61,11 @@
 
   3. `TaskType`抽象类，代表了一系列任务节点的身份特征。用户自定义子类继承并实现它，在任务节点类上声明此类bean名称，完成任务链路图的聚合构建
 
-  4. `Ctx`
+  4. `Ctx`泛型，执行过程上下文对象，保存任务链路图执行过程中的中间信息。中间信息应尽快使用、计算，将结果输出到`Res`对象中，以便尽快GC，减轻JVM压力
 
-  5. `Res`
+  5. `Res`泛型，执行结果对象，保存任务节点执行完成的信息，最终用户可拿到`Res`对象作为请求的执行结果
 
-  6. `ExecutionResult`
+  6. `ExecutionResult`类是框架的执行结果对象，封装了执行过程中的错误信息（若有），用户通过它判断是否执行中出错
 
 
 - 示例代码
