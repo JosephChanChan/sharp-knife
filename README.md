@@ -53,6 +53,11 @@
 </dependency>
 ```
 
+- spring配置
+
+
+
+
 - sharp-knife中的类
 
   1. `ScheduleRequest`类是面向用户的，封装用户请求的对象
@@ -67,8 +72,179 @@
 
   6. `ExecutionResult`类是框架的执行结果对象，封装了执行过程中的错误信息（若有），用户通过它判断是否执行中出错
 
+  7. `TaskConfig`注解是任务的基本配置信息，对任务节点进行命名，声明归属的`TaskType`，以及该节点的超时时间监控
+
 
 - 示例代码
+
+  sharp-knife是依托于Spring上运行的，所以使用方法和配置和Spring生态的其它组件相似
+
+  #### 建立线程池
+  
+  将工程中用到的所有线程池在专门的配置类中定义，方便管理。使用`ThreadPoolBuilder`类建造合适参数的线程池对象。
+
+  建议每个不同类型的任务链路图使用专属的线程池，隔离任务间的互相影响。
+
+  ```
+  @Configuration
+  public class ThreadPoolConfig {
+      @Bean
+      public MonitoredThreadPool commonThreadPool() {
+          ThreadPoolBuilder builder = new ThreadPoolBuilder(
+                  ThreadPoolEnums.DEFAULT,
+                  "commonThreadPool",
+                  6,
+                  36,
+                  60,
+                  TimeUnit.SECONDS,
+                  new DefaultMonitoredQueue<>(10),
+                  null,
+                  null
+          );
+          return ThreadPoolFactory.build(builder);
+      }
+      @Bean
+      public MonitoredThreadPool productListThreadPool() {
+          ThreadPoolBuilder builder = new ThreadPoolBuilder(
+                  ThreadPoolEnums.DEFAULT,
+                  "productListThreadPool",
+                  32,
+                  32,
+                  60,
+                  TimeUnit.SECONDS,
+                  new DefaultMonitoredQueue<>(10),
+                  null,
+                  null
+          );
+          return ThreadPoolFactory.build(builder);
+      }
+  }
+  ```
+  
+  #### 定义任务身份特征
+  
+  框架依靠`TaskType`类寻找并聚合对应的任务节点。用户需自定义好子类继承`TaskType`类并提供相应信息
+  
+  ```
+  @Configuration
+  public class ProductListType extends TaskType {
+      @Autowired
+      private MonitoredThreadPool productListThreadPool;
+
+      @Override
+      public String getTypeName() {
+          return "ProductListType";
+      }
+
+      @Override
+      public MonitoredThreadPool getExecutorPool() {
+          return productListThreadPool;
+      }
+  }
+  ```
+  
+  #### 编写任务节点
+  
+  可以按业务需要自由定义需要并行执行的任务节点，这可能包括：耗时的RPC、重的计算逻辑等。任务节点对象实现`TaskNode`类并实现其中的必要方法
+  
+  自定义一个对象，声明@Component注解加入Spring容器，若任务节点由前继节点用@DependsOn注解声明依赖的前继节点名称
+  
+  框架会自动调度前继节点执行完毕后才尝试执行当前节点（若当前节点入度为0时立即执行）
+  
+  声明@TaskConfig注解，给任务节点配置基本信息：任务名称、任务类型、节点超时时间监控（超时后会记录并上报，不会自动中断线程执行）
+  
+  实现`TaskNode`接口时需要声明2个泛型`Ctx`和`Res`，如果不需要则可以声明Void对象
+  
+  每个TaskNode子类需要实现接口：
+  
+  - getPrediction
+  
+    提供断言函数，框架在执行任务前会先获取用户提供的断言函数，并将`Ctx`和`Res`对象传入供程序判断是否需要执行该节点。根据返回结果true会立即执行，false则丢弃任务
+    
+  - getTask
+    
+    提供需要执行的逻辑代码
+    
+  - onSuccess
+
+    任务节点执行完毕后，框架进行回调通知
+
+  - onError
+
+    任务节点执行过程中出现异常，进行回调通知，并且将异常对象记录
+  
+  ```
+  @Slf4j
+  @Component
+  @DependsOn("productIdAfterNode")
+  @TaskConfig(taskName = "productExtInfoNode", taskType = "productListType", timeout = 100)
+  public class ProductExtInfoNode implements TaskNode<ProductListContext, ProductListResult> {
+
+      @Override
+      public BiPredicate<ProductListContext, ProductListResult> getPrediction() {
+          return ((productListContext, productListResultExecutionResult) -> {return true;});
+      }
+
+      @Override
+      public BiConsumer<ProductListContext, ProductListResult> getTask() {
+          return (context, result) -> {
+              // 此处编写业务逻辑
+              int millis = ThreadKit.boundMillis(105);
+              log.info("productExtInfoNode task will cost={}", millis);
+              ThreadKit.sleep(millis);
+              result.finishNode("productExtInfoNode", result.getOrder().getAndIncrement(),
+                      new String[]{
+                              "productIdAfterNode"
+                      });
+          };
+      }
+
+      @Override
+      public void onSuccess(ProductListContext executionContext, ProductListResult executionResult) {
+          log.info("productExtInfoNode done");
+      }
+
+      @Override
+      public void onError(ProductListContext executionContext, ProductListResult executionResult, Exception e) {
+          log.error("productExtInfoNode error", e);
+      }
+  }
+  ```
+  
+  
+  #### 提交请求
+  
+  编写完任务节点后，这一系列任务节点就组成一副有向无环图，向框架提交请求对象执行这幅图
+  
+  注入`TaskType`对象，`ConcurrentScheduler`任务调度器
+  
+  ```
+  @Slf4j
+  @Service
+  public class ProductListService {
+
+      @Autowired
+      private TaskType productListType;
+
+      @Autowired
+      private ConcurrentScheduler concurrentScheduler;
+
+      public void test() {
+          ProductListContext context = new ProductListContext();
+          ProductListResult result = new ProductListResult();
+          // 封装请求对象
+          ScheduleRequest<ProductListContext, ProductListResult> request = new ScheduleRequest<>(productListType, context, result);
+          // 提交请求，开始同步执行
+          ExecutionResult executionResult = concurrentScheduler.scheduleSyn(request);
+          // 判断执行结果，中间是否发生异常
+          if (executionResult.hasError()) {
+              throw new RuntimeException("ProductListService execute error", executionResult.getError());
+          }
+          // 使用ProductListResult对象的结果信息
+          log.info("ProductListService done, res={}", result.sort());
+      }
+  }
+  ```
 
 
 
