@@ -55,7 +55,19 @@
 
 - spring配置
 
+  在application.yml中加入以下配置。未来扩展的其它配置待补充..
 
+  ```
+  sharp.knife:
+    ## 全局配置，全局配置优先级 < 用户配置
+    global:
+      ## 任务节点超时时间
+      timeoutPerTask: 200
+      ## 任务链路图总的超时时间，超过时间主线程会唤醒并且直接中断剩余未执行的任务节点
+      timeoutTotal: 10000
+      ## 开启总的超时等待事件，否则主线程阻塞等待直到任务链路图执行完毕
+      enableTimeoutTotal: true
+  ```
 
 
 - sharp-knife中的类
