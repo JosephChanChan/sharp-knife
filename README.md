@@ -270,6 +270,10 @@
 
 ### 测试的工程
 
+  sharp-knife已经经过功能性测试，工程中包含复杂的电商商列场景的并行调度例子，用户可参考例子编写代码进行测试
+
+  [sharp-knife测试工程](https://github.com/JosephChanChan/sharp-knife-test)
+
 ### 问题反馈
   
   由于框架目前处于雏形阶段，在使用过程中发现bug或有更好的改进地方，请联系 JosephCGH@163.com，感谢您的宝贵意见
