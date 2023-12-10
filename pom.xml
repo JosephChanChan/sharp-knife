@@ -7,7 +7,7 @@
     <groupId>com.joseph</groupId>
     <artifactId>sharp-knife</artifactId>
     <packaging>pom</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <modules>
         <module>sharp-knife.blade</module>
     </modules>
@@ -38,6 +38,12 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.6</version>
+            </dependency>
+
 
         </dependencies>
     </dependencyManagement>

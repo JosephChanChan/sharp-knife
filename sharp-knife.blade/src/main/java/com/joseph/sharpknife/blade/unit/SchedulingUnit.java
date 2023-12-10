@@ -1,7 +1,7 @@
 package com.joseph.sharpknife.blade.unit;
 
-import com.joseph.common.kit.ClassKit;
-import com.joseph.common.kit.collections.CollectionsKit;
+import com.joseph.sharpknife.blade.kits.ClassKit;
+import com.joseph.sharpknife.blade.kits.CollectionsKit;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
 import com.joseph.sharpknife.blade.pool.MonitoredThreadPool;
 import com.joseph.sharpknife.blade.config.GlobalConfigHolder;

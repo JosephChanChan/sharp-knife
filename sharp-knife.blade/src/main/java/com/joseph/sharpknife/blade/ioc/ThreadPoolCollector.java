@@ -1,6 +1,6 @@
 package com.joseph.sharpknife.blade.ioc;
 
-import com.joseph.common.kit.AssertKit;
+import com.joseph.sharpknife.blade.kits.AssertKit;
 import com.joseph.sharpknife.blade.pool.MonitoredThreadPool;
 import com.joseph.sharpknife.blade.pool.SharpKnifePoolManager;
 import com.joseph.sharpknife.blade.constnat.LogConstant;

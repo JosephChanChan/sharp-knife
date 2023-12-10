@@ -1,7 +1,5 @@
 package com.joseph.sharpknife.blade.pool;
 
-import com.joseph.common.kit.StringKit;
-import com.joseph.common.kit.collections.CollectionsKit;
 import com.joseph.sharpknife.blade.exception.SharpKnifeException;
 import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
@@ -12,7 +10,6 @@ import com.joseph.sharpknife.blade.unit.Hooker;
 import com.joseph.sharpknife.blade.unit.RunWrapper;
 import com.joseph.sharpknife.blade.unit.TaskMeta;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 
 import java.util.concurrent.*;
 

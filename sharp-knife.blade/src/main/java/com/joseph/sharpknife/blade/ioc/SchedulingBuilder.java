@@ -1,7 +1,7 @@
 package com.joseph.sharpknife.blade.ioc;
 
-import com.joseph.common.kit.AssertKit;
-import com.joseph.common.kit.ClassKit;
+import com.joseph.sharpknife.blade.kits.AssertKit;
+import com.joseph.sharpknife.blade.kits.ClassKit;
 import com.joseph.sharpknife.blade.annotations.TaskConfig;
 import com.joseph.sharpknife.blade.exception.SharpKnifeException;
 import com.joseph.sharpknife.blade.unit.TaskMeta;

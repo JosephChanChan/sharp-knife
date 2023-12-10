@@ -1,6 +1,6 @@
 package com.joseph.sharpknife.blade.pool;
 
-import com.joseph.common.kit.AssertKit;
+import com.joseph.sharpknife.blade.kits.AssertKit;
 
 import java.util.HashMap;
 import java.util.Map;

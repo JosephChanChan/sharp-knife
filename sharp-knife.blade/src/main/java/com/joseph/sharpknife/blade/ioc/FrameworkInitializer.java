@@ -1,12 +1,10 @@
 package com.joseph.sharpknife.blade.ioc;
 
-import com.joseph.common.kit.collections.CollectionsKit;
+import com.joseph.sharpknife.blade.kits.CollectionsKit;
 import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
 import com.joseph.sharpknife.blade.unit.SchedulingUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

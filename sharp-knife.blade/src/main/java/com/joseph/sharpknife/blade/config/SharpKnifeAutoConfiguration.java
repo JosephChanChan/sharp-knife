@@ -3,7 +3,6 @@ package com.joseph.sharpknife.blade.config;
 import com.joseph.sharpknife.blade.ioc.*;
 import com.joseph.sharpknife.blade.scheduler.ConcurrentScheduler;
 import com.joseph.sharpknife.blade.scheduler.DefaultConcurrentScheduler;
-import com.mixc.sharpknife.blade.ioc.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

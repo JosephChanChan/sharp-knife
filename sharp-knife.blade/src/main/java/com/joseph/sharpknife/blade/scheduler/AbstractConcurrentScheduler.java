@@ -1,7 +1,7 @@
 package com.joseph.sharpknife.blade.scheduler;
 
-import com.joseph.common.kit.NumberKit;
-import com.joseph.common.kit.collections.CollectionsKit;
+import com.joseph.sharpknife.blade.kits.NumberKit;
+import com.joseph.sharpknife.blade.kits.CollectionsKit;
 import com.joseph.sharpknife.blade.exception.SharpKnifeException;
 import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
