@@ -1,11 +1,9 @@
 package com.joseph.sharpknife.blade.config;
 
-import com.joseph.sharpknife.blade.ioc.SchedulingBuilder;
-import com.joseph.sharpknife.blade.ioc.SpringContextRefreshedListener;
-import com.joseph.sharpknife.blade.ioc.SpringCoordinator;
-import com.joseph.sharpknife.blade.ioc.SpringTaskHolder;
+import com.joseph.sharpknife.blade.ioc.*;
 import com.joseph.sharpknife.blade.scheduler.ConcurrentScheduler;
 import com.joseph.sharpknife.blade.scheduler.DefaultConcurrentScheduler;
+import com.mixc.sharpknife.blade.ioc.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +13,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SharpKnifeAutoConfiguration {
 
+    @Bean
+    public ThreadPoolCollector threadPoolCollector() {
+        return new ThreadPoolCollector();
+    }
 
     @Bean
     public SchedulingBuilder schedulingBuilder(SpringCoordinator springCoordinator,
@@ -34,8 +36,8 @@ public class SharpKnifeAutoConfiguration {
     }
 
     @Bean
-    public SpringContextRefreshedListener springContextRefreshedListener() {
-        return new SpringContextRefreshedListener();
+    public FrameworkInitializer springContextRefreshedListener() {
+        return new FrameworkInitializer();
     }
 
     @Bean

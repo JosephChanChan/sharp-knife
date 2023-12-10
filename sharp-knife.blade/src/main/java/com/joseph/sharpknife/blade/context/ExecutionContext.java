@@ -2,7 +2,6 @@ package com.joseph.sharpknife.blade.context;
 
 import com.joseph.sharpknife.blade.unit.InDegreeInfo;
 import com.joseph.sharpknife.blade.unit.SchedulingUnit;
-import com.joseph.sharpknife.blade.unit.TaskType;
 
 import java.util.Map;
 

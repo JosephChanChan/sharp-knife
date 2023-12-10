@@ -1,9 +1,8 @@
 package com.joseph.sharpknife.blade.context;
 
-import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.exception.SharpKnifeException;
+import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.unit.SchedulingUnit;
-import com.joseph.sharpknife.blade.unit.TaskMeta;
 import com.joseph.sharpknife.blade.unit.TaskType;
 import lombok.Getter;
 
@@ -57,6 +56,10 @@ public class ScheduleRequest<Ctx, Res> {
 
     public void setTimeoutTotal(int timeoutTotal) {
         this.timeoutTotal = timeoutTotal;
+    }
+
+    public void setInterruptWhileError(boolean interruptWhileError) {
+        this.interruptWhileError = interruptWhileError;
     }
 
     public void paramsCheck() {

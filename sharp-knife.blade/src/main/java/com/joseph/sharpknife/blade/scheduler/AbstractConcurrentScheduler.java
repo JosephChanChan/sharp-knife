@@ -2,20 +2,24 @@ package com.joseph.sharpknife.blade.scheduler;
 
 import com.joseph.common.kit.NumberKit;
 import com.joseph.common.kit.collections.CollectionsKit;
+import com.joseph.sharpknife.blade.exception.SharpKnifeException;
 import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
-import com.joseph.sharpknife.blade.context.*;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
 import com.joseph.sharpknife.blade.constnat.SchedulingStatus;
-import com.joseph.sharpknife.blade.exception.SharpKnifeException;
+import com.joseph.sharpknife.blade.context.EventWaiter;
+import com.joseph.sharpknife.blade.context.ExecutionContext;
+import com.joseph.sharpknife.blade.context.ExecutionResult;
+import com.joseph.sharpknife.blade.context.ScheduleRequest;
 import com.joseph.sharpknife.blade.ioc.SpringTaskHolder;
 import com.joseph.sharpknife.blade.kits.Clock;
-import com.joseph.sharpknife.blade.unit.*;
+import com.joseph.sharpknife.blade.unit.SchedulingUnit;
+import com.joseph.sharpknife.blade.unit.TaskMeta;
+import com.joseph.sharpknife.blade.unit.TaskType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiPredicate;
 
 /**
  * @author Joseph
@@ -33,6 +37,7 @@ public abstract class AbstractConcurrentScheduler implements ConcurrentScheduler
      * 提交调度请求，并发调度任务节点
      * 完成调度后用户应检查ExecutionResult对象的结果
      */
+    @Override
     public <Ctx, Res> ExecutionResult scheduleSyn(ScheduleRequest<Ctx, Res> scheduleRequest) {
         scheduleRequest.paramsCheck();
 
@@ -70,26 +75,15 @@ public abstract class AbstractConcurrentScheduler implements ConcurrentScheduler
         }
     }
 
-    public <Ctx, Res> void submitNeighbours(TaskMeta taskMeta, SchedulingUnit unit, ScheduleRequest<Ctx, Res> scheduleRequest) {
-        TaskType taskType = taskMeta.getTaskType();
-
-        List<TaskMeta> neighbours = unit.getNeighbours(taskMeta.getTaskName());
-        if (CollectionsKit.isEmpty(neighbours)) {
-            log.info("{} taskType={}, taskName={} have no neighbours",
-                    LogConstant.LOG_HEAD, taskType.getTypeName(), taskMeta.getTaskName());
-            return;
-        }
-        boolean async = neighbours.size() > 1;
-        for (TaskMeta neighbour : neighbours) {
-            submitTask(async, neighbour, unit, scheduleRequest);
-        }
-    }
-
     public <Ctx, Res> void decreaseNextInDegree(TaskMeta taskMeta, SchedulingUnit unit, ScheduleRequest<Ctx, Res> scheduleRequest) {
         ExecutionContext executionContext = scheduleRequest.getRequestPipeline().getExecutionContext();
         List<TaskMeta> neighbours = unit.getNeighbours(taskMeta.getTaskName());
+
         if (CollectionsKit.isNotEmpty(neighbours)) {
+
             int inDegree ;
+            boolean async = neighbours.size() > 1;
+
             for (TaskMeta neighbourNode : neighbours) {
                 inDegree = executionContext.decreaseInDegree(neighbourNode.getTaskName());
                 if (inDegree < 0) {
@@ -99,6 +93,9 @@ public abstract class AbstractConcurrentScheduler implements ConcurrentScheduler
                 }
                 log.info("{} currentNode={} reduce a neighbour={} inDegree={}",
                         LogConstant.LOG_HEAD, taskMeta.getTaskName(), neighbourNode.getTaskName(), inDegree);
+                if (inDegree == 0) {
+                    submitTask(async, neighbourNode, unit, scheduleRequest);
+                }
             }
         }
     }
@@ -196,51 +193,5 @@ public abstract class AbstractConcurrentScheduler implements ConcurrentScheduler
         return go;
     }
 
-    protected <Ctx, Res> boolean handlePrediction(TaskMeta taskMeta, ScheduleRequest<Ctx, Res> scheduleRequest) {
-        boolean abort = scheduleRequest.isInterruptWhileError();
-        boolean suppressStackTrace = scheduleRequest.isSuppressStackTrace();
-        Ctx userContext = scheduleRequest.getUserContext();
-        Res userResult = scheduleRequest.getUserResult();
-
-        ExecutionResult executionResult = scheduleRequest.getRequestPipeline().getExecutionResult();
-        EventWaiter waiter = scheduleRequest.getRequestPipeline().getWaiter();
-
-        BiPredicate<Ctx, Res> prediction = taskMeta.getTaskNode().getPrediction();
-
-        try {
-            if (null != prediction && !prediction.test(userContext, userResult)) {
-                log.info("{} taskName={} predicate false", LogConstant.LOG_HEAD, taskMeta.getTaskName());
-                return false;
-            }
-        }
-        catch (Exception e) {
-            Exception exception = e;
-            if (suppressStackTrace) {
-                exception = SharpKnifeException.suppressStackTraces(exception);
-            }
-            log.error("{} taskType={}, taskName={} predicate error={}!",
-                    LogConstant.LOG_HEAD, taskMeta.getTaskType().getTypeName(), taskMeta.getTaskName(), exception);
-            if (abort) {
-                executionResult.setError(exception);
-                waiter.wakeUpWhileError();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    protected <Ctx, Res> boolean canLaunchNode(TaskMeta taskMeta, ScheduleRequest<Ctx, Res> scheduleRequest) {
-        if (!taskMeta.isHeadNode()) {
-            String taskName = taskMeta.getTaskName();
-            ExecutionContext executionContext = scheduleRequest.getRequestPipeline().getExecutionContext();
-            InDegreeInfo inDegreeInfo = executionContext.getInDegreeInfo(taskName);
-            if (!inDegreeInfo.canLaunch()) {
-                log.info("{} taskName={} remain inDegree={} can't launch",
-                        LogConstant.LOG_HEAD, taskName, inDegreeInfo.getRemainInDegrees());
-                return false;
-            }
-        }
-        return true;
-    }
 
 }

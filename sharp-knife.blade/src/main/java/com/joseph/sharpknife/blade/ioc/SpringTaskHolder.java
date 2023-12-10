@@ -1,7 +1,7 @@
 package com.joseph.sharpknife.blade.ioc;
 
-import com.joseph.sharpknife.blade.unit.SchedulingUnit;
 import com.joseph.sharpknife.blade.unit.TaskType;
+import com.joseph.sharpknife.blade.unit.SchedulingUnit;
 
 import java.util.ArrayList;
 import java.util.HashMap;

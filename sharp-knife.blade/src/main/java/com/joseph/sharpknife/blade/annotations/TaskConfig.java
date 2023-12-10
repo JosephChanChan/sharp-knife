@@ -1,7 +1,6 @@
 package com.joseph.sharpknife.blade.annotations;
 
 import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
-import com.joseph.sharpknife.blade.unit.TaskType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

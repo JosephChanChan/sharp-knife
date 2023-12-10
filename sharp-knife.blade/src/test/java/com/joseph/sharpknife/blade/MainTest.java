@@ -1,6 +1,5 @@
 package com.joseph.sharpknife.blade;
 
-import com.joseph.sharpknife.blade.constnat.LogConstant;
 import com.joseph.sharpknife.blade.exception.SharpKnifeException;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,9 +1,10 @@
 package com.joseph.sharpknife.blade.pool;
 
 import com.joseph.sharpknife.blade.constnat.CommonConstant;
-import com.joseph.sharpknife.blade.constnat.LogConstant;
-import com.joseph.sharpknife.blade.queue.MonitoredTaskQueue;
 import com.joseph.sharpknife.blade.unit.RunWrapper;
+import com.joseph.sharpknife.blade.constnat.LogConstant;
+import com.joseph.sharpknife.blade.context.InheritBehaviour;
+import com.joseph.sharpknife.blade.queue.MonitoredTaskQueue;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -56,6 +57,11 @@ public class ThreadPoolBuilder {
         return worker;
     };
 
+    /**
+     * 父子线程变量传承行为
+     */
+    InheritBehaviour inheritBehaviour ;
+
     public ThreadPoolBuilder(ThreadPoolEnums type,
                              String threadPoolName,
                              int coreThreads,
@@ -64,12 +70,14 @@ public class ThreadPoolBuilder {
                              TimeUnit timeUnit,
                              MonitoredTaskQueue<Runnable> queue,
                              RejectedExecutionHandler rejectedStrategy,
-                             ThreadFactory threadFactory) {
+                             ThreadFactory threadFactory,
+                             InheritBehaviour inheritBehaviour) {
         this.type = type;
         this.threadPoolName = threadPoolName;
         this.coreThreads = coreThreads;
         this.maxThreads = maxThreads;
         this.queue = queue;
+        this.inheritBehaviour = inheritBehaviour;
         if (keepAliveTimes >= 0) {
             this.keepAliveTimes = keepAliveTimes;
         }

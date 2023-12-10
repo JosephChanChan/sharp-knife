@@ -4,6 +4,7 @@ import com.joseph.common.kit.ClassKit;
 import com.joseph.common.kit.collections.CollectionsKit;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
 import com.joseph.sharpknife.blade.pool.MonitoredThreadPool;
+import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 
@@ -23,7 +24,7 @@ public class SchedulingUnit {
 
     private final TaskType taskType ;
 
-    private final MonitoredThreadPool executorPool ;
+    private MonitoredThreadPool executorPool ;
 
     /* -------------------------- 面向用户的定制化参数 End ----------------------------- */
 
@@ -54,7 +55,6 @@ public class SchedulingUnit {
 
     public SchedulingUnit(TaskType taskType) {
         this.taskType = taskType;
-        this.executorPool = taskType.getExecutorPool();
         headNodes = new ArrayList<>(8);
         nodeNeighbours = new HashMap<>(16);
     }
@@ -93,6 +93,20 @@ public class SchedulingUnit {
             throw new IllegalArgumentException("headNodes can't be empty!");
         }
         taskType.paramsCheck();
+    }
+
+    /**
+     * Spring容器初始化完成后获取线程池
+     */
+    public void readyExecutorPool() {
+        this.executorPool = taskType.getExecutorPool();
+    }
+
+    /**
+     * 提供全局配置给线程池
+     */
+    public void offerGlobalConfig2Pool(GlobalConfigHolder configHolder) {
+        this.executorPool.setConfigHolder(configHolder);
     }
 
     /**

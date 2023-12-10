@@ -2,20 +2,19 @@ package com.joseph.sharpknife.blade.ioc;
 
 import com.joseph.common.kit.AssertKit;
 import com.joseph.common.kit.ClassKit;
-import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.annotations.TaskConfig;
+import com.joseph.sharpknife.blade.exception.SharpKnifeException;
+import com.joseph.sharpknife.blade.unit.TaskMeta;
+import com.joseph.sharpknife.blade.unit.TaskType;
+import com.joseph.sharpknife.blade.config.GlobalConfigHolder;
 import com.joseph.sharpknife.blade.config.TaskConfigModel;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
-import com.joseph.sharpknife.blade.exception.SharpKnifeException;
 import com.joseph.sharpknife.blade.unit.SchedulingUnit;
-import com.joseph.sharpknife.blade.unit.TaskMeta;
 import com.joseph.sharpknife.blade.unit.TaskNode;
-import com.joseph.sharpknife.blade.unit.TaskType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.util.StringUtils;
 
 /**
  * 调度框架收集任务节点
@@ -46,6 +45,7 @@ public class SchedulingBuilder implements BeanPostProcessor {
      * @return TaskNode
      * @throws BeansException BeansException
      */
+    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (!(bean instanceof TaskNode)) {
             return bean;

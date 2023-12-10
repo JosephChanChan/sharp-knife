@@ -1,6 +1,5 @@
 package com.joseph.sharpknife.blade.context;
 
-import com.joseph.sharpknife.blade.unit.TaskType;
 import lombok.Data;
 
 

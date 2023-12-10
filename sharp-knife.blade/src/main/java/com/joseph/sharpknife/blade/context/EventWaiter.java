@@ -1,8 +1,8 @@
 package com.joseph.sharpknife.blade.context;
 
+import com.joseph.sharpknife.blade.unit.TaskType;
 import com.joseph.sharpknife.blade.constnat.LogConstant;
 import com.joseph.sharpknife.blade.constnat.SchedulingStatus;
-import com.joseph.sharpknife.blade.unit.TaskType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EventWaiter {
 
     /**
-     * 调度单元的整体执行状态，see {@link com.joseph.sharpknife.blade.constnat.SchedulingStatus}
+     * 调度单元的整体执行状态，see {@link SchedulingStatus}
      */
     private AtomicReference<String> status;
 
